@@ -1,0 +1,68 @@
+PAIRS, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{pair}.mapped.fq.gz')
+# then PAIRS would be [ "ERRXYZ.x.genomeABC", "ERRXYZ.x.genomeDEF"]
+
+# SAMPLES, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.1.mapped.fq.gz')
+print(PAIRS)
+
+rule all:
+    input:
+#        expand("{pair}.reads.x.assembly.bam", pair=PAIRS),
+        expand("{pair}.diff.fq.gz", pair=PAIRS),
+        # expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
+
+rule mapped_assembly:
+    input:
+        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+
+    output:
+        mapped_assembly= "{metagenome}.x.{genome}.mapped.assembly.fa",
+        dir = directory("{metagenome}.x.{genome}.p_megahit.d"),
+
+    conda: "env-diff.yml"
+    threads: 32
+    # sourmash uses single threads
+    shell: """
+        megahit -f -t {threads} -r {input.mapped_reads} -o {output.dir}
+        cp {output.dir}/final.contigs.fa {output.mapped_assembly}
+    """
+    
+rule minimap:
+    input:
+        mapped_assembly= "{metagenome}.x.{genome}.mapped.assembly.fa",
+        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+        
+    output:
+        minimap= "{metagenome}.x.{genome}.reads.x.assembly.bam",
+        
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        minimap2 -ax sr -t 32 {input.mapped_assembly} {input.mapped_reads} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
+    """
+rule samtool:
+    input:
+        bamfile= "{metagenome}.x.{genome}.reads.x.assembly.bam",
+        
+    output:
+        samfile= "{metagenome}.x.{genome}.reads.x.assembly.fq.gz",
+        
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools bam2fq {input.bamfile} | gzip -9c > {output.samfile}
+    """    
+    
+rule diff_output:
+    input:
+        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+        samfile= "{metagenome}.x.{genome}.reads.x.assembly.fq.gz",
+        
+    output:
+        diff= "{metagenome}.x.{genome}.diff.fq.gz",
+    
+    conda: "env-diff.yml"    
+    threads: 1
+    shell: """
+        ./output-diff-reads.py {input.mapped_reads} {input.samfile} -o {output.diff}
+        gzip {output.diff}
+    """
