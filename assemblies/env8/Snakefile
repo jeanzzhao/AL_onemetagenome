@@ -22,6 +22,7 @@ rule assemble:
 
 rule sketch:
     input: "{filename}"
+    # which files does this {filename} refere to?
     output: "{filename}.sig"
     conda: "env-sourmash.yml"
     shell: """
