@@ -1,0 +1,31 @@
+# assemble everything in /home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim
+SAMPLES, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim/{sample}.trim.fq.gz')
+print(SAMPLES)
+
+rule all:
+    input:
+        expand("{sample}.megahit.fa.gz", sample=SAMPLES),
+        expand("{sample}.megahit.fa.gz.sig", sample=SAMPLES),
+
+rule assemble:
+    input:
+        "/home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim/{sample}.trim.fq.gz",
+    output:
+        fagz = "{sample}.megahit.fa.gz",
+        dir = directory("{sample}.megahit.d"),
+    conda: "env-megahit.yml"
+    threads: 32
+    shell: """
+        megahit --12 {input} -f -o {output.dir} -t {threads} -m 100e9 && \
+        gzip -9c {output.dir}/final.contigs.fa > {output.fagz}
+    """
+
+rule sketch:
+    input: "{filename}"
+    # which files does this {filename} refere to? the output files of previous rule?
+    output: "{filename}.sig"
+    conda: "env-sourmash.yml"
+    shell: """
+        sourmash sketch dna -p k=31,k=21,k=51,abund {input} -o {output} \
+           --name {wildcards.filename}
+    """

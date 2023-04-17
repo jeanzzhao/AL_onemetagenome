@@ -1,0 +1,11 @@
+samples:
+-  ERR257715
+
+outdir: outputs.9env_samples/
+metagenome_trim_memory: 50e9
+
+sourmash_databases:
+# - gtdb-rs202.genomic-reps.k31.sbt.zip
+# should not use 'sbt' version
+- /group/ctbrowngrp/sourmash-db/gtdb-rs207/gtdb-rs207.genomic.k31.zip
+
