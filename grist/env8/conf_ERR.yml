@@ -1,12 +1,5 @@
 samples:
 -  ERR257715
--  ERR272375
--  ERR272377
--  ERR257714
--  ERR272378
--  ERR257713
--  ERR272376
--  ERR257716
 
 outdir: outputs.9env_samples/
 metagenome_trim_memory: 50e9
