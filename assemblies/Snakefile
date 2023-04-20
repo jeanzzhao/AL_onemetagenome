@@ -1,5 +1,5 @@
-# assemble everything in /home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim
-SAMPLES, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim/{sample}.trim.fq.gz')
+# assemble everything in /home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/trim
+SAMPLES, = glob_wildcards('/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/trim/{sample}.trim.fq.gz')
 print(SAMPLES)
 
 rule all:
@@ -9,7 +9,7 @@ rule all:
 
 rule assemble:
     input:
-        "/home/zyzhao/assloss/grist/env8/outputs.env8_samples/trim/{sample}.trim.fq.gz",
+        "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/trim/{sample}.trim.fq.gz",
     output:
         fagz = "{sample}.megahit.fa.gz",
         dir = directory("{sample}.megahit.d"),

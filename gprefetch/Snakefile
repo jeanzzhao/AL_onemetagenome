@@ -1,19 +1,20 @@
-SAMPLES, = glob_wildcards('/home/zyzhao/assloss/assemblies/env8/{sample}.megahit.fa.gz.sig')
+# zip genomes before running Snakefile under ~/AL_onemetagenome/containment$
+# sourmash sig cat *.sig -o genomes.zip
+SAMPLES, = glob_wildcards('/home/zyzhao/AL_onemetagenome/assemblies/{metagenome}.megahit.fa.gz.sig')
 print(SAMPLES)
 
 rule all:
     input:
-        expand("{sample}.x.genomes.prefetch.csv", sample=SAMPLES),
+        expand("{metagenome}.x.genomes.prefetch.csv", metagenome=SAMPLES),
 
 rule prefetch:
     input:
-        gzip="/home/zyzhao/assloss/containment/env8/gprefetch/genomes.zip",
-        megahit_sig="/home/zyzhao/assloss/assemblies/env8/{sample}.megahit.fa.gz.sig"
+        gzip="/home/zyzhao/AL_onemetagenome/containment/genomes.zip",
+        megahit_sig="/home/zyzhao/AL_onemetagenome/assemblies/{metagenome}.megahit.fa.gz.sig"
     output:
-        pref="{sample}.x.genomes.prefetch.csv",
+        pref="{metagenome}.x.genomes.prefetch.csv",
 
     conda: "env-sourmash.yml"
-    threads: 1
     shell: """
         sourmash prefetch {input.megahit_sig} {input.gzip} -o {output.pref} --threshold=0
     """

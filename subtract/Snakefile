@@ -1,4 +1,4 @@
-PAIRS, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{pair}.mapped.fq.gz')
+PAIRS, = glob_wildcards('/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{pair}.mapped.fq.gz')
 # then PAIRS would be [ "ERRXYZ.x.genomeABC", "ERRXYZ.x.genomeDEF"]
 
 # SAMPLES, = glob_wildcards('/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.1.mapped.fq.gz')
@@ -12,7 +12,7 @@ rule all:
 
 rule mapped_assembly:
     input:
-        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+        mapped_reads="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
 
     output:
         mapped_assembly= "{metagenome}.x.{genome}.mapped.assembly.fa",
@@ -29,7 +29,7 @@ rule mapped_assembly:
 rule minimap:
     input:
         mapped_assembly= "{metagenome}.x.{genome}.mapped.assembly.fa",
-        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+        mapped_reads="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
         
     output:
         minimap= "{metagenome}.x.{genome}.reads.x.assembly.bam",
@@ -54,7 +54,7 @@ rule samtool:
     
 rule diff_output:
     input:
-        mapped_reads="/home/zyzhao/assloss/grist/env8/outputs.env8_samples/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
+        mapped_reads="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
         samfile= "{metagenome}.x.{genome}.reads.x.assembly.fq.gz",
         
     output:
