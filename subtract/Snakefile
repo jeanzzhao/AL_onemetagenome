@@ -9,7 +9,7 @@ rule all:
 #        expand("{pair}.reads.x.assembly.bam", pair=PAIRS),
 #        expand("{pair}.diff.fq.gz", pair=PAIRS),
         # expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
-        expand("{pair}.reads.x.diff.bam", pair=PAIRS),
+        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
 
 rule mapped_assembly:
     input:
@@ -74,7 +74,7 @@ rule diff_map:
         mapped_genome="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/genomes/{genome}_genomic.fna.gz",
         
     output:
-        minimap= "{metagenome}.x.{genome}.reads.x.diff.bam",
+        minimap= "{metagenome}.x.{genome}.diff.reads.x.genome.bam",
         
     conda: "env-diff.yml"
     threads: 32
