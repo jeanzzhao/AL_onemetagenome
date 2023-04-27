@@ -7,8 +7,9 @@ print(PAIRS)
 rule all:
     input:
 #        expand("{pair}.reads.x.assembly.bam", pair=PAIRS),
-        expand("{pair}.diff.fq.gz", pair=PAIRS),
+#        expand("{pair}.diff.fq.gz", pair=PAIRS),
         # expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
+        expand("{pair}.reads.x.diff.bam", pair=PAIRS),
 
 rule mapped_assembly:
     input:
@@ -65,4 +66,18 @@ rule diff_output:
     shell: """
         ./output-diff-reads.py {input.mapped_reads} {input.samfile} -o {output.diff}
         gzip {output.diff}
+    """
+
+rule diff_map:
+    input:
+        diff= "{metagenome}.x.{genome}.diff.fq.gz",
+        mapped_genome="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/genomes/{genome}_genomic.fna.gz",
+        
+    output:
+        minimap= "{metagenome}.x.{genome}.reads.x.diff.bam",
+        
+    conda: "env-diff.yml"
+    threads: 32
+    shell: """
+        minimap2 -ax sr -t {threads} {input.diff} {input.mapped_genome} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
     """
