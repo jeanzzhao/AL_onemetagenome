@@ -79,5 +79,5 @@ rule diff_map:
     conda: "env-diff.yml"
     threads: 32
     shell: """
-        minimap2 -ax sr -t {threads} {input.diff} {input.mapped_genome} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
+        minimap2 -ax sr -t {threads} {input.mapped_genome} {input.diff} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
     """
