@@ -8,8 +8,10 @@ rule all:
     input:
 #        expand("{pair}.reads.x.assembly.bam", pair=PAIRS),
 #        expand("{pair}.diff.fq.gz", pair=PAIRS),
-        # expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
-        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
+#        expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
+#        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
+#        expand("{pair}.diff.reads.x.genome.sort.bam.bai", pair=PAIRS),
+        expand("{pair}.csv", pair=PAIRS)
 
 rule mapped_assembly:
     input:
@@ -80,4 +82,40 @@ rule diff_map:
     threads: 32
     shell: """
         minimap2 -ax sr -t {threads} {input.mapped_genome} {input.diff} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
+    """
+
+rule sort:
+    input:
+        bamfile= "{filename}.bam",
+    output:
+        sortfile= "{filename}.sort.bam",
+
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools sort {input.bamfile} -o {output.sortfile}
+    """
+
+rule index:
+    input:
+        sortfile= "{filename}.sort.bam",
+    output:
+        indexfile= "{filename}.sort.bam.bai",
+
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools index {input.sortfile}
+    """
+
+rule csv:
+    input:
+        bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam",
+        bam2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
+    output:
+        csvfile= "{metagenome}.x.{genome}.csv",
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+    ./calc-coverage-diff-sam-bam.py {input.bam1} {input.bam2} -o {output.csvfile}
     """
