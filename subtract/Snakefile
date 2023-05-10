@@ -121,7 +121,7 @@ rule csv:
     ./calc-coverage-diff-sam-bam.py {input.bam1} {input.bam2} -o {output.csvfile}
     """
 # sort `.reads.x.assembly.bam`    
-rule assembly read sort:
+rule assembly_read_sort:
     input:
         bamfile= "{metagenome}.x.{genome}.reads.x.assembly.bam",
     output:
@@ -134,7 +134,7 @@ rule assembly read sort:
     """
 
 # index the `.reads.x.assembly.sort.bam`
-rule assembly read index:
+rule assembly_read_index:
     input:
         sortfile= "{metagenome}.x.{genome}.reads.x.assembly.sort.bam",
     output:
@@ -149,7 +149,7 @@ rule assembly read index:
 # bam1: contain all reads mapped to a genome
 # bam2: reads that did map to the assembly
 # csv will output the coverage of diff read (read did not map to the assembly)
-rule assembly read csv:
+rule assembly_read_csv:
     input:
         bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam",
         bam2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.reads.x.assembly.sort.bam",
