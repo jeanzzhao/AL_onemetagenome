@@ -8,3 +8,4 @@ dependencies:
     - samtools
     - bcftools
     - screed
+    - pysam=0.21
