@@ -12,7 +12,8 @@ rule all:
 #        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
 #        expand("{pair}.diff.reads.x.genome.sort.bam.bai", pair=PAIRS),
         expand("{pair}.diff.csv", pair=PAIRS),
-        expand("{pair}.all.csv", pair=PAIRS)
+        expand("{pair}.all.csv", pair=PAIRS),
+        expand("{pair}.diff2.csv", pair=PAIRS),
 
 rule mapped_assembly:
     input:
@@ -124,7 +125,19 @@ rule diff_csv:
     shell: """
     ./calc-coverage-diff-sam-bam.py {input.bam1} {input.bam2} -o {output.csvfile}
     """
-    
+# New script cal:
+rule diff2_csv:
+    input:
+        bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.bam.depth",
+        bam2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
+        bai2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam.bai",
+    output:
+        csvfile= "{metagenome}.x.{genome}.diff2.csv",
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+    ./calc-coverage-diff-2.py {input.bam1} {input.bam2} -o {output.csvfile}
+    """    
 # bam1: contain all reads mapped to a genome
 # csv will output the coverage of all read
 rule all_csv:
