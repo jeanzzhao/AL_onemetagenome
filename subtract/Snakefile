@@ -11,7 +11,6 @@ rule all:
 #        expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
 #        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
 #        expand("{pair}.diff.reads.x.genome.sort.bam.bai", pair=PAIRS),
-        expand("{pair}.diff.csv", pair=PAIRS),
         expand("{pair}.all.csv", pair=PAIRS),
         expand("{pair}.diff2.csv", pair=PAIRS),
 
@@ -111,20 +110,6 @@ rule index:
     """
 # bam1: contain all reads mapped to a genome
 # bam2: contain reads that did not mapped to the assembly
-# csv will output the coverage of read that mapped to the genome but did not end up in the assembly
-rule diff_csv:
-    input:
-        bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam",
-        bam2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
-        bai1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam.bai",
-        bai2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam.bai",
-    output:
-        csvfile= "{metagenome}.x.{genome}.diff.csv",
-    conda: "env-diff.yml"
-    threads: 1
-    shell: """
-    ./calc-coverage-diff-sam-bam.py {input.bam1} {input.bam2} -o {output.csvfile}
-    """
 # New script cal:
 rule diff2_csv:
     input:
@@ -142,6 +127,7 @@ rule diff2_csv:
 # csv will output the coverage of all read
 rule all_csv:
     input:
+        depth= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.bam.depth",
         bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam",
         bai1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.sort.bam.bai",
     output:
@@ -149,5 +135,5 @@ rule all_csv:
     conda: "env-diff.yml"
     threads: 1
     shell: """
-    ./calc-coverage-diff-sam-bam.py {input.bam1} {input.bam1} -o {output.csvfile}
+        ./calc-coverage-diff-2.py {input.depth} {input.bam1} -o {output.csvfile}
     """
