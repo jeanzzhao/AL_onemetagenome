@@ -1,6 +1,4 @@
-#! /home/zyzhao/miniconda3/bin/python
-"""#! /usr/bin/env python
-"""
+#! /usr/bin/env python
 """
 TODO:
 * verify start and end / do we have an off-by-one error?
@@ -36,29 +34,45 @@ def main():
     # iterate over query reads
     fup = query_bam.fetch()
     for n, read in enumerate(fup):
-        if n % 10 == 0:
+        if n % 100 == 0:
             print('...', n)
 
         chr = read.reference_name
-        start = read.reference_start
+        start = read.reference_start + 1
         end = read.reference_end
 
         # for each position in query read, get coverage
         sum_cov = []
-        for i in range(start, end + 1):
+        #print('XXX', chr, start, end)
+        for i in range(start, end):
             # is it in location cache?
-            cov = location_cache.get(i)
+            depth = location_cache.get(i)
 
             # nope, calculate and save.
-            if cov is None:
-                pup = all_bam.pileup(chr, i, i+1)
-                cov = len(list(pup))
+            if depth is None:
+                pup = all_bam.pileup(chr, i, i+1, flag_filter=0)
+                #pup = list(pup)
 
-                location_cache[i] = cov
+                # get set of unique reads (by name) that map to this position
+                reads = set()
+                for pupcol in pup:
+                    for pup_read in pupcol.pileups:
+                        reads.add(pup_read.alignment.query_name)
+#                        print(pup_read.is_del, pup_read.is_refskip,
+#                              pup_read.alignment.query_name,
+#                              pup_read.query_position,
+#                              pup_read.alignment.query_sequence[pup_read.query_position])
 
-            sum_cov.append(cov)
+                # depth is number of distinct reads that cover this location
+                depth = len(reads)
+                location_cache[i] = depth
 
+            sum_cov.append(depth)
+
+        #print(sum_cov)
         w.writerow([read.qname, f"{sum(sum_cov) / len(sum_cov):.2f}"])
+
+    outfp.close()
 
 
 if __name__ == '__main__':
