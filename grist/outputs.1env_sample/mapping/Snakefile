@@ -1,0 +1,38 @@
+PAIRS, = glob_wildcards('/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{pair}.mapped.fq.gz')
+
+rule all:
+    input:
+        expand("{pair}.sort.bam.bai", pair=PAIRS),
+    	expand("{pair}.bam.depth", pair=PAIRS),
+rule sort:
+    input:
+        bamfile= "{metagenome}.x.{genome}.bam",
+    output:
+        sortfile= "{metagenome}.x.{genome}.sort.bam"
+        
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools sort {input.bamfile} -o {output.sortfile}
+    """  
+    
+rule index:
+    input:
+        sortfile= "{metagenome}.x.{genome}.sort.bam",
+    output:
+        indexfile= "{metagenome}.x.{genome}.sort.bam.bai"
+        
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools index {input.sortfile} -o {output.indexfile}
+    """
+rule depth:
+    input: bamfile= "{metagenome}.x.{genome}.bam",
+    output: depthfile= "{metagenome}.x.{genome}.bam.depth"
+
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools depth {input.bamfile} -o {output.depthfile}
+    """
