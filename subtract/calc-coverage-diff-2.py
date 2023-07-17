@@ -56,6 +56,20 @@ def main():
 
         #print('XXX', chr, start, end)
 
+        # add /1 or /2 if read is paired and is read 1 or read 2
+        if read.is_paired:
+            if read.is_read1:
+                if '/1' not in read.qname:
+                    read.qname += '/1'
+            elif read.is_read2:
+                if '/2' not in read.qname:
+                    read.qname += '/2'
+            else:
+                raise ValueError(f"read {read.qname} is paired but not read 1 or read 2")
+        else:
+            if '/1' not in read.qname:
+                read.qname += '/1'
+
         # for each position in query read, get coverage
         sum_cov = []
         for pos in range(start, end + 1):
