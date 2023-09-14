@@ -11,6 +11,8 @@ rule all:
 #        expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
 #        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
 #        expand("{pair}.diff.reads.x.genome.sort.bam.bai", pair=PAIRS),
+        expand("{pair}.assemble.reads.x.genome.bam", pair=PAIRS),
+#        expand("{pair}.assemble.reads.x.genome.bam.sort.bam.bai", pair=PAIRS),
         expand("{pair}.all.csv", pair=PAIRS),
         expand("{pair}.diff2.csv", pair=PAIRS),
 
@@ -85,6 +87,20 @@ rule diff_map:
         minimap2 -ax sr -t {threads} {input.mapped_genome} {input.diff} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
     """
 
+rule assemble_map:
+    input:
+        assemble= "{metagenome}.x.{genome}.reads.x.assembly.fq.gz",
+        mapped_genome="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/genomes/{genome}_genomic.fna.gz",
+        
+    output:
+        minimap= "{metagenome}.x.{genome}.assemble.reads.x.genome.bam",
+        
+    conda: "env-diff.yml"
+    threads: 32
+    shell: """
+        minimap2 -ax sr -t {threads} {input.mapped_genome} {input.assemble} | samtools view -b -F 4 - | samtools sort - > {output.minimap}
+    """
+
 rule sort:
     input:
         bamfile= "{filename}.bam",
@@ -108,6 +124,18 @@ rule index:
     shell: """
         samtools index {input.sortfile}
     """
+# make diff.bam.depth file
+rule diff_depth:
+    input:
+        diff_bam="/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
+    output:
+        diff_depth="/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.bam.depth",
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        samtools depth {input.diff_bam} > {output.diff_depth}
+    """
+
 # bam1: contain all reads mapped to a genome
 # bam2: contain reads that did not mapped to the assembly
 # New script cal:
