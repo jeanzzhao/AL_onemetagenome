@@ -55,10 +55,18 @@ def main(args):
     while the rest are written to fail_bam and fail_csv.
     """
     infile_basename = (args.input).rsplit(".bam", 1)[0]
-    pass_bam_file = f"{infile_basename}.pass.bam"
-    fail_bam_file = f"{infile_basename}.fail.bam"
-    pass_csv_file = f"{infile_basename}.pass.csv"
-    fail_csv_file = f"{infile_basename}.fail.csv"
+    # make parameter string for output files
+    # pa70_mq30_pp
+    p_str = f"pa{args.threshold}"
+    if args.mapq:
+        p_str.append(f'_mq{args.mapq}')
+    if args.proper_pairs:
+        p_str.append('_pp')
+
+    pass_bam_file = f"{infile_basename}.{p_str}.pass.bam"
+    fail_bam_file = f"{infile_basename}.{p_str}.fail.bam"
+    pass_csv_file = f"{infile_basename}.{p_str}.pass.csv"
+    fail_csv_file = f"{infile_basename}.{p_str}.fail.csv"
 
     with pysam.AlignmentFile(args.input, "rb") as infile, \
          pysam.AlignmentFile(pass_bam_file, "wb", header=infile.header) as passbam, \
@@ -91,7 +99,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Split reads based on alignment percentage, proper pair criteria, and mapping quality.")
     p.add_argument("-i", "--input", required=True, help="Path to the input BAM file.")
     p.add_argument("-t", "--threshold", type=float, default=70, help="Percentage threshold for alignment. Default is 70%%.")
-    p.add_argument("-p", "--proper_pairs", action="store_true", help="Optionally only consider reads that are in proper pairs.")
+    p.add_argument("-p", "--proper-pairs", action="store_true", help="Optionally only consider reads that are in proper pairs.")
     p.add_argument("-q", "--mapq", type=int, help="Minimum mapping quality required. If not specified, no filtering will be applied based on mapping quality.")
 
     args = p.parse_args()
