@@ -99,8 +99,8 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Split reads based on alignment percentage, proper pair criteria, and mapping quality.")
     p.add_argument("-i", "--input", required=True, help="Path to the input BAM file.")
     p.add_argument("-a", "--alignment-threshold", type=float, default=70, help="Percentage threshold for alignment. Default is 70%%.")
-    p.add_argument("-p", "--proper-pairs", action="store_true", help="Optionally only consider reads that are in proper pairs.")
-    p.add_argument("-q", "--mapq", type=int, help="Minimum mapping quality required. If not specified, no filtering will be applied based on mapping quality.")
+    p.add_argument("-p", "--proper-pairs", action="store_true", help="Only pass read alignments that are properly paired.")
+    p.add_argument("-q", "--mapq", type=int, help="Only pass read alignments that meet this minimum mapping quality.")
 
     args = p.parse_args()
     main(args)
