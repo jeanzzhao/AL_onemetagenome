@@ -59,9 +59,9 @@ def main(args):
     # pa70_mq30_pp
     p_str = f"pa{args.alignment_threshold}"
     if args.mapq:
-        p_str.append(f'_mq{args.mapq}')
+        p_str += f'_mq{args.mapq}'
     if args.proper_pairs:
-        p_str.append('_pp')
+        p_str += '_pp'
 
     pass_bam_file = f"{infile_basename}.{p_str}.pass.bam"
     fail_bam_file = f"{infile_basename}.{p_str}.fail.bam"
