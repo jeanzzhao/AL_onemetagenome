@@ -57,7 +57,7 @@ def main(args):
     infile_basename = (args.input).rsplit(".bam", 1)[0]
     # make parameter string for output files
     # pa70_mq30_pp
-    p_str = f"pa{args.threshold}"
+    p_str = f"pa{args.alignment_threshold}"
     if args.mapq:
         p_str.append(f'_mq{args.mapq}')
     if args.proper_pairs:
@@ -83,7 +83,7 @@ def main(args):
         fail_csv_writer.writerow(header)
 
         for read in infile:
-            if not read.is_unmapped and percent_aligned(read) >= args.threshold and (args.mapq is None or read.mapping_quality >= args.mapq):
+            if not read.is_unmapped and percent_aligned(read) >= args.alignment_threshold and (args.mapq is None or read.mapping_quality >= args.mapq):
                 if args.proper_pairs and not read.is_proper_pair:
                     failbam.write(read)
                     write_csv(fail_csv_writer, read)
@@ -98,7 +98,7 @@ def main(args):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="Split reads based on alignment percentage, proper pair criteria, and mapping quality.")
     p.add_argument("-i", "--input", required=True, help="Path to the input BAM file.")
-    p.add_argument("-t", "--threshold", type=float, default=70, help="Percentage threshold for alignment. Default is 70%%.")
+    p.add_argument("-a", "--alignment-threshold", type=float, default=70, help="Percentage threshold for alignment. Default is 70%%.")
     p.add_argument("-p", "--proper-pairs", action="store_true", help="Optionally only consider reads that are in proper pairs.")
     p.add_argument("-q", "--mapq", type=int, help="Minimum mapping quality required. If not specified, no filtering will be applied based on mapping quality.")
 
