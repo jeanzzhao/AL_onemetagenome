@@ -11,11 +11,11 @@ rule all:
 #        expand("{metagenome}.x.{sample}.diff.fq", sample=SAMPLES),
 #        expand("{pair}.diff.reads.x.genome.bam", pair=PAIRS),
 #        expand("{pair}.diff.reads.x.genome.sort.bam.bai", pair=PAIRS),
-        expand("{pair}.assemble.reads.x.genome.bam", pair=PAIRS),
+#        expand("{pair}.assemble.reads.x.genome.bam", pair=PAIRS),
 #        expand("{pair}.assemble.reads.x.genome.bam.sort.bam.bai", pair=PAIRS),
-        expand("{pair}.all.csv", pair=PAIRS),
-        expand("{pair}.diff2.csv", pair=PAIRS),
-
+#        expand("{pair}.all.csv", pair=PAIRS),
+#        expand("{pair}.diff2.csv", pair=PAIRS),
+        expand("{pair}.combined.csv", pair=PAIRS),
 rule mapped_assembly:
     input:
         mapped_reads="/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.mapped.fq.gz",
@@ -164,4 +164,16 @@ rule all_csv:
     threads: 1
     shell: """
         ./calc-coverage-diff-2.py {input.depth} {input.bam1} -o {output.csvfile}
+    """
+
+rule combined_csv:
+    input:
+        all= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.all.csv",
+        diff= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff2.csv",
+    output:
+        combined= "{metagenome}.x.{genome}.combined.csv",
+    conda: "env-diff.yml"
+    threads: 1
+    shell: """
+        ./combine-all-diff.py {input.all} {input.diff} -o {output.combined}
     """
