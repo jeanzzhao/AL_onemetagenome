@@ -2,6 +2,9 @@
 """
 TODO:
 * worry about partial alignments?
+
+note pysam docs:
+https://pysam.readthedocs.io/en/latest/api.html#pysam.AlignedSegment.qname
 """
 import sys
 import argparse
@@ -41,7 +44,9 @@ def main():
 
     outfp = open(args.output, 'w', newline='')
     w = csv.writer(outfp)
-    w.writerow(['read_name','mapping_cov'])
+    w.writerow(['read_name','mapping_cov', 'cigar', 'mapping_quality',
+                'read_length', 'read_align_f',
+                'is_proper_pair', 'is_primary_alignment'])
 
     # iterate over query reads
     fup = query_bam.fetch()
@@ -57,18 +62,15 @@ def main():
         #print('XXX', chr, start, end)
 
         # add /1 or /2 if read is paired and is read 1 or read 2
-        if read.is_paired:
+        if read.is_paired and not ('/1' in read.qname or '/2' in read.qname):
             if read.is_read1:
-                if '/1' not in read.qname:
-                    read.qname += '/1'
+                read.qname += '/1'
             elif read.is_read2:
-                if '/2' not in read.qname:
-                    read.qname += '/2'
+                read.qname += '/2'
             else:
                 raise ValueError(f"read {read.qname} is paired but not read 1 or read 2")
-        else:
-            if '/1' not in read.qname:
-                read.qname += '/1'
+        elif not ('/1' in read.qname or '/2' in read.qname):
+            read.qname += '/1'
 
         # for each position in query read, get coverage
         sum_cov = []
@@ -81,8 +83,24 @@ def main():
         if not sum_cov:
             sum_cov = [0]
 
+        # calculate fraction aligned/mapped, fraction soft clipped
+        n_match = 0
+        n_softclip = 0
+        for k, v in read.cigartuples:
+            if k == 0:          # M
+                n_match += v
+            elif k == 4:
+                n_softclip += v
+            else:
+                #print(f"unhandled cigarstring operation: {(k, v)}")
+                pass
+
 #        print(len(sum_cov), read.query_length, sum_cov)
-        w.writerow([read.qname, f"{sum(sum_cov) / len(sum_cov):.2f}"])
+        w.writerow([read.qname, f"{sum(sum_cov) / len(sum_cov):.2f}",
+                    read.cigarstring, read.mapping_quality,
+                    read.query_length, n_match / read.query_length,
+                    '1' if read.is_proper_pair else '0',
+                    '0' if read.is_secondary else '1'])
 
     outfp.close()
 

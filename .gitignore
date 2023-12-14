@@ -18,4 +18,12 @@ subtract/*.gz
 subtract/*.fa
 subtract/*.d
 subtract/*.bam
+subtract/*.sort.bam*
+subtract/*.csv
 subtract/.snakemake/
+subtract2/*
+subtract/*.diff.bam.depth
+noPairInfoCsv/
+snakemake.dec12-1.txt
+subtract/split/*
+{output.minimap}

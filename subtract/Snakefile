@@ -127,9 +127,9 @@ rule index:
 # make diff.bam.depth file
 rule diff_depth:
     input:
-        diff_bam="/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
+        diff_bam="{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
     output:
-        diff_depth="/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.bam.depth",
+        diff_depth="{metagenome}.x.{genome}.diff.bam.depth",
     conda: "env-diff.yml"
     threads: 1
     shell: """
@@ -142,8 +142,8 @@ rule diff_depth:
 rule diff2_csv:
     input:
         bam1= "/home/zyzhao/AL_onemetagenome/grist/outputs.1env_sample/mapping/{metagenome}.x.{genome}.bam.depth",
-        bam2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
-        bai2= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam.bai",
+        bam2= "{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam",
+        bai2= "{metagenome}.x.{genome}.diff.reads.x.genome.sort.bam.bai",
     output:
         csvfile= "{metagenome}.x.{genome}.diff2.csv",
     conda: "env-diff.yml"
@@ -168,8 +168,8 @@ rule all_csv:
 
 rule combined_csv:
     input:
-        all= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.all.csv",
-        diff= "/home/zyzhao/AL_onemetagenome/subtract/{metagenome}.x.{genome}.diff2.csv",
+        all= "{metagenome}.x.{genome}.all.csv",
+        diff= "{metagenome}.x.{genome}.diff2.csv",
     output:
         combined= "{metagenome}.x.{genome}.combined.csv",
     conda: "env-diff.yml"
